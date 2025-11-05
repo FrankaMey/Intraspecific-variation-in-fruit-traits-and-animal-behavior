@@ -1,0 +1,810 @@
+---
+title: "R-Script Analysis Paper"
+output:
+  html_document:
+    df_print: paged
+---
+
+# 1. Fruit trait
+
+
+## 1.2 Scent
+
+### 1.2.1 GCMS data (variation and PCA)
+
+# In setup-Chunks oben im Notebook
+```{r setup, include=FALSE}
+#install.packages("here")
+library(here)
+knitr::opts_knit$set(root.dir = here())
+```
+
+
+```{r}
+rm(list = ls()) #clean workspace
+
+library(geometry)
+library(vegan)
+
+#Load data
+
+scent_data <- read.csv("data/Scent/raw_table_scent.csv", header=TRUE,sep=";", row.names = 1)
+all.species <- unique(scent_data$Species)
+print(all.species)
+```
+
+Species selection 
+```{r}
+species_fohanasity <- all.species[2] 
+species_guave <- all.species[3]
+species_kalafam <- all.species[4]
+species_kalafana <- all.species[5]
+species_vandrika <- all.species[6]
+species_voara <- all.species[7]
+
+```
+
+
+#### a. Fohanasity
+
+```{r}
+# Create dataset and remove metadata
+dataset_fohanasity <- subset(scent_data, scent_data$Species == species_fohanasity)
+dataset_fohanasity <- dataset_fohanasity[,3:ncol(scent_data)] 
+```
+
+Trait variation
+```{r}
+#Calculate average BC distance in the dataset
+fohanasity_mean.bc.dist <- mean(vegdist(dataset_fohanasity, method = "bray")) 
+print(fohanasity_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_fohanasity <- prcomp(dataset_fohanasity)
+
+#Identify and select PCs that explain at least 90% of the variance
+fohanasity_last.pc.to.include <- which(summary(pca.dataset_fohanasity)$importance[3,] > 0.9)[1] 
+fohanasity_pcs.to.include <- c(1:fohanasity_last.pc.to.include)
+dataset_fohanasity <- pca.dataset_fohanasity$x[,fohanasity_pcs.to.include] 
+initial.volume.dataset_fohanasity <- convhulln(as.matrix(dataset_fohanasity),"FA")$vol 
+print(dataset_fohanasity)
+```
+#### b. Guave
+
+```{r}
+dataset_guave <- subset(scent_data, scent_data$Species == species_guave) 
+dataset_guave <- dataset_guave[,3:ncol(scent_data)] 
+```
+
+Trait variation
+```{r}
+guave_mean.bc.dist <- mean(vegdist(dataset_guave, method = "bray")) 
+print(guave_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_guave <- prcomp(dataset_guave)
+
+#Identify and select PCs that explain at least 90% of the variance
+guave_last.pc.to.include <- which(summary(pca.dataset_guave)$importance[3,] > 0.9)[1] 
+guave_pcs.to.include <- c(1:guave_last.pc.to.include)
+dataset_guave <- pca.dataset_guave$x[,guave_pcs.to.include]
+initial.volume.dataset_guave <- convhulln(as.matrix(dataset_guave),"FA")$vol
+print(dataset_guave)
+```
+
+
+#### c. kalafam
+
+```{r}
+dataset_kalafam <- subset(scent_data, scent_data$Species == species_kalafam) 
+dataset_kalafam <- dataset_kalafam[,3:ncol(scent_data)] 
+```
+
+Trait variation
+```{r}
+kalafam_mean.bc.dist <- mean(vegdist(dataset_kalafam, method = "bray")) 
+print(kalafam_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_kalafam <- prcomp(dataset_kalafam)
+
+#Identify and select PCs that explain at least 90% of the variance
+kalafam_last.pc.to.include <- which(summary(pca.dataset_kalafam)$importance[3,] > 0.9)[1] 
+kalafam_pcs.to.include <- c(1:kalafam_last.pc.to.include) 
+dataset_kalafam <- pca.dataset_kalafam$x[,kalafam_pcs.to.include] 
+initial.volume.dataset_kalafam <- convhulln(as.matrix(dataset_kalafam),"FA")$vol 
+print(dataset_kalafam)
+```
+
+
+#### d. kalafana
+
+```{r}
+dataset_kalafana <- subset(scent_data, scent_data$Species == species_kalafana) 
+dataset_kalafana <- dataset_kalafana[,3:ncol(scent_data)] 
+```
+
+Trait-variation
+```{r}
+kalafana_mean.bc.dist <- mean(vegdist(dataset_kalafana, method = "bray")) 
+print(kalafana_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_kalafana <- prcomp(dataset_kalafana)
+
+#Identify and select PCs that explain at least 90% of the variance
+kalafana_last.pc.to.include <- which(summary(pca.dataset_kalafana)$importance[3,] > 0.9)[1] 
+kalafana_pcs.to.include <- c(1:kalafana_last.pc.to.include) 
+dataset_kalafana <- pca.dataset_kalafana$x[,kalafana_pcs.to.include] 
+initial.volume.dataset_kalafana <- convhulln(as.matrix(dataset_kalafana),"FA")$vol
+print(dataset_kalafana)
+```
+
+
+#### e. vandrika
+
+```{r}
+dataset_vandrika <- subset(scent_data, scent_data$Species == species_vandrika) 
+dataset_vandrika <- dataset_vandrika[,3:ncol(scent_data)] 
+```
+
+Trait-variation
+```{r}
+vandrika_mean.bc.dist <- mean(vegdist(dataset_vandrika, method = "bray")) 
+print(vandrika_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_vandrika <- prcomp(dataset_vandrika)
+
+#Identify and select PCs that explain at least 90% of the variance
+vandrika_last.pc.to.include <- which(summary(pca.dataset_vandrika)$importance[3,] > 0.9)[1] 
+vandrika_pcs.to.include <- c(1:vandrika_last.pc.to.include) 
+dataset_vandrika <- pca.dataset_vandrika$x[,vandrika_pcs.to.include] 
+initial.volume.dataset_vandrika <- convhulln(as.matrix(dataset_vandrika),"FA")$vol 
+print(dataset_vandrika)
+```
+
+
+#### f. Voara
+
+```{r}
+dataset_voara <- subset(scent_data, scent_data$Species == species_voara) 
+dataset_voara <- dataset_voara[,3:ncol(scent_data)] 
+```
+
+Trait-variation
+```{r}
+voara_mean.bc.dist <- mean(vegdist(dataset_voara, method = "bray")) 
+print(voara_mean.bc.dist)
+```
+
+Function for finding most inflating sample
+```{r}
+find.most.inflating.sample <- function(df) {
+current.volumes <- c(1:nrow(df)) 
+for (j in c(1:nrow(df))) {
+  dataset.to.calculate.volume <- df[-j,] 
+  hypervolume.df.without.j <- convhulln(as.matrix(dataset.to.calculate.volume),"FA") 
+  current.volumes[j] <- hypervolume.df.without.j$vol 
+}
+    sample.inflating.most <- which(current.volumes == min(current.volumes))
+  return(sample.inflating.most)
+  }
+```
+
+Calculation_PCA
+```{r}
+pca.dataset_voara <- prcomp(dataset_voara)
+
+#Identify and select PCs that explain at least 90% of the variance
+voara_last.pc.to.include <- which(summary(pca.dataset_voara)$importance[3,] > 0.9)[1] 
+voara_pcs.to.include <- c(1:voara_last.pc.to.include) 
+dataset_voara <- pca.dataset_voara$x[,voara_pcs.to.include] 
+initial.volume.dataset_voara <- convhulln(as.matrix(dataset_voara),"FA")$vol 
+print(dataset_voara)
+```
+
+
+### 1.2.2 Scent-sugar correlation 
+
+```{r}
+# Load in data with scent-PCA results and sugar content 
+
+fohanasity <- read.table("data/Scent/Fohanasity_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+guave <- read.table("data/Scent/Guave_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+kalafam <- read.table("data/Scent/Kalafam_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+kalafana <- read.table("data/Scent/Kalafana_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+vandrika <- read.table("data/Scent/Vandrika_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+voara <- read.table("data/Scent/Voara_scent_sugar.csv", 
+                         sep = ";",
+                         header = TRUE)
+
+
+fohanasity$Sample.number <- as.numeric(fohanasity$Sample.number)
+guave$Sample.number <- as.numeric(guave$Sample.number)
+kalafam$Sample.number <- as.numeric(kalafam$Sample.number)
+kalafana$Sample.number <- as.numeric(kalafana$Sample.number)
+vandrika$Sample.number <- as.numeric(vandrika$Sample.number)
+voara$Sample.number <- as.numeric(voara$Sample.number)
+
+
+#Calculate correlation between sugar and scent per species
+#Fohanasity
+scent1_sugar_foha <- cor(fohanasity$PC1, fohanasity$sugar.content)
+scent2_sugar_foha <- cor(fohanasity$PC2, fohanasity$sugar.content)
+print(scent1_sugar_foha)
+print(scent2_sugar_foha)
+
+#guave
+scent1_sugar_guave <- cor(guave$PC1, guave$sugar.content)
+scent2_sugar_guave <- cor(guave$PC2, guave$sugar.content)
+print(scent1_sugar_guave)
+print(scent2_sugar_guave)
+
+#kalafam
+scent1_sugar_kalafam <- cor(kalafam$PC1, kalafam$sugar.content)
+scent2_sugar_kalafam <- cor(kalafam$PC2, kalafam$sugar.content)
+print(scent1_sugar_kalafam)
+print(scent2_sugar_kalafam)
+
+#kalafana
+scent1_sugar_kalafana <- cor(kalafana$PCA1, kalafana$sugar.content)
+scent2_sugar_kalafana <- cor(kalafana$PCA2, kalafana$sugar.content)
+print(scent1_sugar_kalafana)
+print(scent2_sugar_kalafana)
+
+#vandrika
+scent1_sugar_vandrika <- cor(vandrika$PC1, vandrika$sugar.content)
+scent2_sugar_vandrika <- cor(vandrika$PC2, vandrika$sugar.content)
+print(scent1_sugar_vandrika)
+print(scent2_sugar_vandrika)
+
+#voara
+scent1_sugar_voara <- cor(voara$PC1, voara$sugar.content)
+scent2_sugar_voara <- cor(voara$PC2, voara$sugar.content)
+print(scent1_sugar_voara)
+print(scent2_sugar_voara)
+
+```
+
+
+## 1.3 Color
+
+PCA calculation 
+
+```{r}
+
+# Guave
+spectra_guave <- read.csv("data/Color/spectraldata_guave.csv", sep = ";")
+rownames(spectra_guave) <- spectra_guave[, 1] 
+spectra_guave <- spectra_guave[, -1]         
+
+# PCA calculation 
+pca.guave <- prcomp(spectra_guave, center = T, scale. = T)
+summary(pca.guave)
+
+color.guave1 <- pca.guave$x[,1]
+
+
+# Foha
+spectra_foha <- read.csv("data/Color/spectraldata_foha.csv")
+rownames(spectra_foha) <- spectra_foha[, 1] 
+spectra_foha <- spectra_foha[, -1]  
+
+# PCA calculation 
+pca.foha <- prcomp(spectra_foha, center = T, scale. = T)
+summary(pca.foha)
+
+
+color.foha1 <- pca.foha$x[,1]
+color.foha2 <- pca.foha$x[,2]
+
+# Kalafana
+spectra_kalafana <- read.csv("data/Color/spectraldata_kalafana.csv")
+rownames(spectra_kalafana) <- spectra_kalafana[, 1] 
+spectra_kalafana <- spectra_kalafana[, -1]  
+
+# PCA calculation 
+pca.kalafana <- prcomp(spectra_kalafana[,-1], center = T, scale. = T)
+summary(pca.kalafana)
+
+
+color.kalafana1 <- pca.kalafana$x[,1]
+color.kalafana2 <- pca.kalafana$x[,2]
+
+
+# kalafam
+spectra_kalafam <- read.csv("data/Color/spectraldata_kalafam.csv")
+rownames(spectra_kalafam) <- spectra_kalafam[, 1] 
+spectra_kalafam <- spectra_kalafam[, -1] 
+
+# PCA calculation 
+pca.kalafam <- prcomp(spectra_kalafam[,-1], center = T, scale. = T)
+summary(pca.kalafam)
+
+color.kalafam1 <- pca.kalafam$x[,1]
+
+
+# voara
+spectra_voara <- read.csv("data/Color/spectraldata_voara.csv")
+rownames(spectra_voara) <- spectra_voara[, 1] 
+spectra_voara <- spectra_voara[, -1] 
+
+# PCA calculation 
+pca.voara <- prcomp(spectra_voara[,-1], center = T, scale. = T)
+summary(pca.voara)
+
+color.voara1 <- pca.voara$x[,1]
+color.voara2 <- pca.voara$x[,2]
+
+# vandrika
+spectra_vandrika <- read.csv("data/Color/spectraldata_vandrika.csv")
+rownames(spectra_vandrika) <- spectra_vandrika[, 1] 
+spectra_vandrika <- spectra_vandrika[, -1] 
+
+# PCA calculation 
+pca.vandrika <- prcomp(spectra_vandrika[,-1], center = T, scale. = T)
+summary(pca.vandrika)
+
+color.vandrika1 <- pca.vandrika$x[,1]
+color.vandrika2 <- pca.vandrika$x[,2]
+
+#######
+#write.csv(color.foha1, file = "PCAs/pca_foha_1.csv")
+#write.csv(color.foha2, file = "PCAs/pca_foha_2.csv")
+#write.csv(color.guave1, file = "pca_guave_1.csv")
+#write.csv(color.kalafam1, file = "PCAs/pca_kalafam_1.csv")
+#write.csv(color.kalafana1, file = "PCAs/pca_kalafana_1.csv")
+#write.csv(color.kalafana2, file = "PCAs/pca_kalafana_2.csv")
+#write.csv(color.vandrika1, file = "PCAs/pca_vandrika_1.csv")
+#write.csv(color.vandrika2, file = "PCAs/pca_vandrika_2.csv")
+#write.csv(color.voara1, file = "PCAs/pca_voara_1.csv")
+#write.csv(color.voara2, file = "PCAs/pca_voara_2.csv")
+
+```
+
+
+
+### 1.3.1 Trait variation
+
+```{r}
+# Load in data with Color-PCA and sugar content 
+
+guave_traits <- read.csv("data/Guave_traits.csv")
+fohanasity_traits <- read.csv("data/Fohanasity_traits.csv")
+kalafana_traits <- read.csv("data/Kalafana_traits.csv")
+kalafam_traits <- read.csv("data/Kalafam_traits.csv")
+vandrika_traits <- read.csv("data/Vandrika_traits.csv")
+voara_traits <- read.csv("data/Voara_traits.csv")
+```
+
+```{r}
+cv <- function(x) sd(x)/mean(x)
+
+
+# Calaculate variation of Color-PCAs
+cv_foha_color1 <- cv(fohanasity_traits$color_pca1)
+cv_foha_color2 <- cv(fohanasity_traits$color_pca2)
+cv_guave_color1 <- cv(guave_traits$color_pca1)
+cv_kalafam_color1 <- cv(kalafam_traits$color_pca1)
+cv_kalafana_color1 <-cv(kalafana_traits$color_pca1)
+cv_kalafana_color2 <-cv(kalafana_traits$color_pca2)
+cv_vandrika_color1 <-cv(vandrika_traits$color_pca1)
+cv_vandrika_color2 <-cv(vandrika_traits$color_pca2)
+cv_voara_color1 <-cv(voara_traits$color_pca1)
+cv_voara_color2 <-cv(voara_traits$color_pca2)
+```
+
+
+### 1.3.2 Color-sugar correlation 
+
+Correlation 
+
+```{r}
+
+#Calculate correlation of Color-PCA and sugar content per species
+color1_sugar_guave <- cor(guave_traits$color_pca1, guave_traits$sugar.content)
+
+color1_sugar_foha <- cor(fohanasity_traits$color_pca1, fohanasity_traits$sugar.content)
+color2_sugar_foha <- cor(fohanasity_traits$color_pca2, fohanasity_traits$sugar.content)
+
+color1_sugar_kalafam <- cor(kalafam_traits$color_pca1, kalafam_traits$sugar.content)
+
+color1_sugar_kalafana <- cor(kalafana_traits$color_pca1, kalafana_traits$sugar.content)
+color2_sugar_kalafana <- cor(kalafana_traits$color_pca2, kalafana_traits$sugar.content)
+
+color1_sugar_voara <- cor(voara_traits$color_pca1, voara_traits$sugar.content)
+color2_sugar_voara <- cor(voara_traits$color_pca2, voara_traits$sugar.content)
+
+color1_sugar_vandrika <- cor(vandrika_traits$color_pca1, vandrika_traits$sugar.content)
+color2_sugar_vandrika <- cor(vandrika_traits$color_pca2, vandrika_traits$sugar.content)
+```
+
+
+## 1.4 Hardness
+
+### 1.4.1 Trait variation 
+
+```{r}
+cv <- function(x) sd(x)/mean(x)
+
+# Calculate variation in hardness per species 
+
+cv_foha_hardness <- cv(fohanasity_traits$value.puntc..res)
+cv_guave_hardness <- cv(guave_traits$value.puntc..res)
+cv_kalafam_hardness <- cv(kalafam_traits$value.puntc..res)
+cv_kalafana_hardness <-cv(kalafana_traits$value.puntc..res)
+cv_vandrika_hardness <-cv(vandrika_traits$value.puntc..res)
+cv_voara_hardness <-cv(voara_traits$value.puntc..res)
+```
+
+
+### 1.4.2 Hardness-sugar variation 
+
+```{r}
+# Calculate Correlation between hardness and sugar content per species 
+
+cor(fohanasity_traits$value.puntc..res, fohanasity_traits$sugar.content)
+cor(guave_traits$value.puntc..res, guave_traits$sugar.content)
+cor(kalafam_traits$value.puntc..res, kalafam_traits$sugar.content)
+cor(kalafana_traits$value.puntc..res, kalafana_traits$sugar.content)
+cor(vandrika_traits$value.puntc..res, vandrika_traits$sugar.content)
+cor(voara_traits$value.puntc..res, voara_traits$sugar.content)
+
+```
+
+# 2. Analysis 
+
+
+```{r}
+rm(list = ls())
+```
+
+Installing and loading packages
+```{r results='hide', warning=FALSE, message=FALSE}
+#install.packages("lme4")
+library("lme4")
+```
+
+Test for overdispersion (by Roger Mundry)
+```{r results='hide'}
+overdisp.test<-function(x){
+  pr=residuals(x, type ="pearson")
+  sum.dp=sum(pr^2)
+  if(class(x)[[1]]=="mer"){
+    xdf=length(residuals(x))-length(fixef(x))
+  }else if(class(x)[[1]]=="glmerMod"){
+    xdf=length(residuals(x))-length(fixef(x))
+  }else{
+    xdf=length(residuals(x))-length(x$coefficients)
+  }
+  return(data.frame(chisq=sum.dp, df=xdf, P=1-pchisq(sum.dp, xdf), dispersion.parameter=sum.dp/xdf))
+}
+```
+
+Load and modify data
+```{r results='hide'}
+dataset <- read.table("data/Data_mixed_model.csv", 
+                      sep = ",", 
+                      header = TRUE)
+
+dataset$look.yes <- ifelse(dataset$Behaviour.code == 'L', 1, 0)
+dataset$sniff.yes <- ifelse(dataset$Behaviour.code == 'S', 1, 0)
+dataset$touch.yes <- ifelse(dataset$Behaviour.code == 'T', 1, 0)
+
+dataset <- subset(dataset, dataset$Behaviour.code != "R")
+
+dataset$variation.colour1 <- scale(dataset$variation.colour1)
+dataset$variation.scent <- scale(dataset$variation.scent)
+dataset$variation.hardness <- scale(dataset$variation.hardness)
+
+dataset$variation.colour1 <- as.numeric(dataset$variation.colour1)
+dataset$variation.scent <- as.numeric(dataset$variation.scent)
+dataset$variation.hardness <- as.numeric(dataset$variation.hardness)
+```
+
+GLMM for looking behaviour
+```{r results='hide', warning=FALSE, message=FALSE}
+table(dataset$look.yes)
+
+#variation colour
+look.var.all <- glmer(look.yes~variation.colour1+
+                         (1|Tree.Local.name)+
+                         (1|Individuum.ID/Group.ID), 
+                       data = dataset, 
+                       family = binomial)
+
+#correlation colour and sugar 
+look.cor.all <- glmer(look.yes~abs(colour1.sugar)+ 
+                         (1|Tree.Local.name)+
+                         (1|Individuum.ID/Group.ID), 
+                       data = dataset, 
+                       family = binomial)
+```
+
+Output for looking behaviour
+```{r}
+#Intraspecific variation
+overdisp.test(look.var.all)
+summary(look.var.all)
+
+#Colour-sugar correlation
+overdisp.test(look.cor.all)
+summary(look.cor.all)
+```
+
+GLMM for sniffing behaviour
+```{r results='hide', warning=FALSE, message=FALSE}
+table(dataset$sniff.yes)
+
+#variation scent 
+sniff.var.all <- glmer(sniff.yes~variation.scent+
+                     (1|Tree.Local.name)+
+                     (1|Individuum.ID/Group.ID), 
+                   data = dataset, 
+                   family = binomial)
+
+#correlation scent and sugar
+sniff.cor.all <- glmer(sniff.yes~abs(scent1.sugar)+abs(scent2.sugar)+
+                     (1|Tree.Local.name)+
+                     (1|Individuum.ID/Group.ID), 
+                   data = dataset, 
+                   family = binomial)
+```
+
+Output for sniffing behaviour
+```{r}
+#Intraspecific variation
+overdisp.test(sniff.var.all)
+summary(sniff.var.all)
+
+#Scent-sugar correlation
+overdisp.test(sniff.cor.all)
+summary(sniff.cor.all)
+```
+
+GLMM for touching behaviour
+```{r results='hide', warning=FALSE, message=FALSE}
+table(dataset$touch.yes)
+
+#variation hardness
+touch.var.all <- glmer(touch.yes~variation.hardness+
+                         (1|Tree.Local.name)+
+                         (1|Individuum.ID/Group.ID), 
+                       data = dataset, 
+                       family = binomial)
+
+#correlation hardness and sugar
+touch.cor.all <- glmer(touch.yes~abs(hardness.sugar)+
+                         (1|Tree.Local.name)+
+                         (1|Individuum.ID/Group.ID), 
+                       data = dataset, 
+                       family = binomial)
+```
+
+Output for touching behaviour
+```{r}
+#Intraspecific variation
+overdisp.test(touch.var.all)
+summary(touch.var.all)
+
+#Hardness-sugar correlation
+overdisp.test(touch.cor.all)
+summary(touch.cor.all)
+```
+
+Visualisation: 
+
+Colouring for groups and individuals 
+```{r results='hide'}
+group_colors <- c("red", "blue", "green")
+# Farbpalette für die Individuen festlegen
+individual_colors <- c("#FF0000","#8B1C62","red4",  
+                       "lightblue", "#00F5FF","royalblue2", "darkblue",
+                       "lightgreen", "darkgreen")
+
+par(mar = c(5, 5, 4, 4) + 0.1, oma = c(0, 1, 2, 0))
+par(font.axis = 2)
+```
+`
+Visualisation colour
+```{r}
+#variation colour
+plot(dataset$variation.colour1, jitter(dataset$look.yes), yaxt = "n",
+     ylab = "", xlab = "Intraspecific variation of colour", cex.lab = 1,
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9)
+title(main = "Looking vs. variation in fruit colour", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No look", "Look"), las = 2, cex.axis = 0.9)
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.var.col <- seq(from = min(dataset$variation.colour1), to = max(dataset$variation.colour1), length.out = 100)
+LP.var.col <- fixef(look.var.all)[1] + xvals.var.col*fixef(look.var.all)[2]
+yvals.var.col <- exp(LP.var.col) / (1+exp(LP.var.col))
+lines(xvals.var.col, yvals.var.col, col = "black", lwd = 2.5)
+
+
+#correlation colour sugar 
+plot(abs(dataset$colour1.sugar), jitter(dataset$look.yes), yaxt = "n",
+     ylab = "", xlab = "Correlation colour [absolute] with sugar",
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9) 
+title(main = "Looking vs. colour-sugar correlation", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No look", "Look"), las = 2, cex.axis = 0.9) 
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.cor.col <- seq(from = min(abs(dataset$colour1.sugar)), to = max(abs(dataset$colour1.sugar)), length.out = 100)
+LP.cor.col <- fixef(look.cor.all)[1] + xvals.cor.col*fixef(look.cor.all)[2]
+yvals.cor.col <- exp(LP.cor.col) / (1+exp(LP.cor.col))
+lines(xvals.cor.col, yvals.cor.col, col = "black", lwd = 2.5)
+```
+
+Visualisation scent 
+```{r}
+
+#variation scent 
+plot(dataset$variation.scent, jitter(dataset$sniff.yes), yaxt = "n",
+     ylab = "", xlab = "Intraspecific variation of scent", cex.lab = 1,
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9)
+title(main = "Sniffing vs. variation in fruit scent", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No sniff", "Sniff"), las = 2, cex.axis = 0.9)
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.var.scent <- seq(from = min(dataset$variation.scent), to = max(dataset$variation.scent), length.out = 100)
+LP.var.scent <- fixef(sniff.var.all)[1] + xvals.var.scent*fixef(sniff.var.all)[2]
+yvals.var.scent <- exp(LP.var.scent) / (1+exp(LP.var.scent))
+lines(xvals.var.scent, yvals.var.scent, col = "black", lwd = 2.5)
+
+
+#correlation scent1 sugar 
+plot(abs(abs(dataset$scent1.sugar)), jitter(dataset$sniff.yes), yaxt = "n",
+     ylab = "", xlab = "Correlation scent [absolute] with sugar",
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9) 
+title(main = "Sniffing vs. scent-sugar correlation (PC1)", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No sniff", "Sniff"), las = 2, cex.axis = 0.9) 
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.cor.scent1 <- seq(from = min(abs(dataset$scent1.sugar)), to = max(abs(dataset$scent1.sugar)), length.out = 100)
+LP.cor.scent1 <- fixef(sniff.cor.all)[1] + xvals.cor.scent1*fixef(sniff.cor.all)[2]
+yvals.cor.scent1 <- exp(LP.cor.scent1) / (1+exp(LP.cor.scent1))
+lines(xvals.cor.scent1, yvals.cor.scent1, col = "black", lwd = 2.5)
+
+#correlation scent2 sugar 
+plot(abs(dataset$scent2.sugar), jitter(dataset$sniff.yes), yaxt = "n",
+     ylab = "", xlab = "Correlation scent [absolute] with sugar",
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9) 
+title(main = "Sniffing vs. scent-sugar correlation (PC2)", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No sniff", "Sniff"), las = 2, cex.axis = 0.9) 
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.cor.scent2 <- seq(from = min(abs(dataset$scent2.sugar)), to = max(abs(dataset$scent2.sugar)), length.out = 100)
+LP.cor.scent2 <- fixef(sniff.cor.all)[1] + xvals.cor.scent2*fixef(sniff.cor.all)[3]
+yvals.cor.scent2 <- exp(LP.cor.scent2) / (1+exp(LP.cor.scent2))
+lines(xvals.cor.scent2, yvals.cor.scent2, col = "black", lwd = 2.5)
+```
+
+Visualisation hardness
+```{r}
+
+#variation hardness
+plot(dataset$variation.hardness, jitter(dataset$touch.yes), yaxt = "n",
+     ylab = "", xlab = "Intraspecific variation of hardness", cex.lab = 1,
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9)
+title(main = "Touching vs. variation in fruit hardness", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No touch", "Touch"), las = 2, cex.axis = 0.9)
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.var.hard <- seq(from = min(dataset$variation.hardness), to = max(dataset$variation.hardness), length.out = 100)
+LP.var.hard <- fixef(touch.var.all)[1] + xvals.var.hard*fixef(touch.var.all)[2]
+yvals.var.hard <- exp(LP.var.hard) / (1+exp(LP.var.hard))
+lines(xvals.var.hard, yvals.var.hard, col = "black", lwd = 2.5)
+
+#correlation hardness sugar
+plot(abs(abs(dataset$hardness.sugar)), jitter(dataset$touch.yes), yaxt = "n",
+     ylab = "", xlab = "Correlation hardness [absolute] with sugar",
+     col = individual_colors[as.factor(dataset$Individuum.ID)], pch = 19, cex = 0.9) 
+title(main = "Touching vs. hardness-sugar correlation", cex.main = 1.2)
+axis(2, at = c(0, 1), labels = c("No touch", "Touch"), las = 2, cex.axis = 0.9) 
+legend("right", legend = unique(dataset$Group.ID), fill = group_colors, title = "Group",
+       x = "right", y = 1.05, cex = 0.6)
+
+xvals.cor.hard <- seq(from = min(abs(dataset$hardness.sugar)), to = max(abs(dataset$hardness.sugar)), length.out = 100)
+LP.cor.hard <- fixef(touch.cor.all)[1] + xvals.cor.hard*fixef(touch.cor.all)[2]
+yvals.cor.hard <- exp(LP.cor.hard) / (1+exp(LP.cor.hard))
+lines(xvals.cor.hard, yvals.cor.hard, col = "black", lwd = 2.5)
+```
+
